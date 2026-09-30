@@ -1,0 +1,22 @@
+# Normalize line endings so shell scripts work on Ubuntu.
+#
+# Git's core.autocrlf is true on this Windows machine, which would otherwise
+# write CRLF into scripts/*.sh. On Ubuntu that fails with
+# "bad interpreter: /bin/bash^M". Pinning eol=lf keeps the deployment scripts
+# executable regardless of who clones the repo and from which OS.
+* text=auto eol=lf
+
+# Windows-native scripts keep CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary assets must never be line-ending translated.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary

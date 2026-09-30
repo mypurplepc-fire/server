@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} - {{ title }} - Construction ERP{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body error-wrap">
+        <div class="code">{{ code }}</div>
+        <h3 class="mt-2">{{ title }}</h3>
+        <p>{{ message }}</p>
+        <a href="{{ url_for('main.index') if current_user.is_authenticated else url_for('auth.login') }}" class="btn btn-primary mt-2">
+            <i class="bi bi-house"></i> Back to {{ 'Dashboard' if current_user.is_authenticated else 'Login' }}
+        </a>
+    </div>
+</div>
+{% endblock %}

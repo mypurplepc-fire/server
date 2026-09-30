@@ -1,0 +1,24 @@
+{% macro field(f, placeholder='', rows=3) %}
+<div class="mb-3">
+    {{ f.label(class="form-label") }}
+    {% if f.type == 'TextAreaField' %}
+        {{ f(class="form-control", rows=rows, placeholder=placeholder) }}
+    {% elif f.type in ['StringField', 'PasswordField', 'DecimalField', 'DateField'] %}
+        {{ f(class="form-control", placeholder=placeholder) }}
+    {% elif f.type == 'SelectField' %}
+        {{ f(class="form-select") }}
+    {% else %}
+        {{ f(class="form-control") }}
+    {% endif %}
+    {% for error in f.errors %}
+        <div class="invalid-feedback d-block"><i class="bi bi-exclamation-circle"></i> {{ error }}</div>
+    {% endfor %}
+</div>
+{% endmacro %}
+
+{% macro submit_row(cancel_url, submit_label='Save') %}
+<div class="d-flex gap-2">
+    {{ form.submit(class="btn btn-primary") }}
+    <a href="{{ cancel_url }}" class="btn btn-soft">Cancel</a>
+</div>
+{% endmacro %}

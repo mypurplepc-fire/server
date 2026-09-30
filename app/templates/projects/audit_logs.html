@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Audit Logs - Construction ERP{% endblock %}
+{% block page_title %}<i class="bi bi-clock-history"></i> Audit Logs{% endblock %}
+
+{% block content %}
+<form method="GET" class="filter-bar">
+    <div>
+        <label class="form-label" for="action">Action</label>
+        <select class="form-select form-select-sm" name="action" id="action" style="min-width:200px">
+            <option value="">All actions</option>
+            {% for a in actions %}
+            <option value="{{ a }}" {% if a == action_filter %}selected{% endif %}>{{ a }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Filter</button>
+    {% if action_filter %}
+    <a href="{{ url_for('projects.audit_logs') }}" class="btn btn-soft"><i class="bi bi-x-lg"></i> Reset</a>
+    {% endif %}
+    <span class="text-muted small ms-auto">
+        <i class="bi bi-inboxes me-1"></i>{{ pagination.total }} record{{ '' if pagination.total == 1 else 's' }}
+    </span>
+</form>
+
+<div class="card">
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td class="text-nowrap text-muted small">{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') if log.created_at else '-' }}</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="avatar" style="width:26px;height:26px;font-size:.65rem">
+                                {{ log.user.username[0]|upper if log.user_id and log.user else 'S' }}
+                            </span>
+                            <span>{{ log.user.username if log.user_id and log.user else 'System' }}</span>
+                        </div>
+                    </td>
+                    <td><span class="badge-soft badge-soft-neutral">{{ log.action }}</span></td>
+                    <td>{{ log.details or '-' }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4">
+                        <div class="empty-state">
+                            <i class="bi bi-clock-history"></i>
+                            <p>No audit logs recorded yet.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if pagination and pagination.pages > 1 %}
+<nav class="mt-3">
+    <ul class="pagination">
+        <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('projects.audit_logs', page=pagination.prev_num, action=action_filter) }}">Previous</a>
+        </li>
+        {% for p in pagination.iter_pages(left_edge=1, left_current=2, right_current=3, right_edge=1) %}
+            {% if p %}
+            <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('projects.audit_logs', page=p, action=action_filter) }}">{{ p }}</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">...</span></li>
+            {% endif %}
+        {% endfor %}
+        <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('projects.audit_logs', page=pagination.next_num, action=action_filter) }}">Next</a>
+        </li>
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

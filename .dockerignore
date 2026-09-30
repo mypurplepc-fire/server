@@ -1,19 +1,72 @@
-node_modules
-.next
-.git
-.gitignore
-*.md
-!README.md
+# Everything below is excluded from the Docker build context.
+# The image only needs: app/, migrations/, run.py, requirements.txt
+
+# ============================================================
+# Python - installed in the image via requirements.txt
+# ============================================================
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ============================================================
+# Secrets - must never end up inside an image layer
+# ============================================================
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+
+instance/
+
+# ============================================================
+# Runtime data - provided by the `uploads` Docker volume instead
+# ============================================================
+uploads/
+
+# ============================================================
+# Node / Next.js leftovers (thousands of files otherwise)
+# ============================================================
+node_modules/
+.next/
+.vite/
+dist/
+coverage/
+frontend/node_modules/
+*.tsbuildinfo
 npm-debug.log*
+yarn-error.log*
+
+# ============================================================
+# Version control and local-only tooling
+# ============================================================
+.git/
+.gitignore
+.dockerignore
+.github/
+.idea/
+.vscode/
+
+# ============================================================
+# Not needed at runtime
+# ============================================================
+pgdata/
+reports/
+frontend/
+backend/
+tests/
+scripts/
+*.md
 Dockerfile
 docker-compose.yml
-docker-compose.*.yml
-nginx
-coverage
-.vscode
-.idea
-*.tsbuildinfo
-next-env.d.ts
+nginx.conf
+
+# ============================================================
+# OS noise
+# ============================================================
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,35 +1,29 @@
-# Engineering Platform
+# Construction Cost Control ERP
 
-A professional civil engineering and construction management platform.
+A production-ready ERP system for construction cost management.
 
-## Project Structure
+## Tech Stack
 
-```
-engineering-platform/
-├── frontend/          # React + Vite
-├── backend/           # Node.js + Express
-├── calculations/      # Engineering calculation modules
-├── database/          # PostgreSQL schemas and migrations
-├── documents/         # Document templates
-├── uploads/           # File upload storage
-├── reports/           # Report templates
-├── scripts/           # Utility scripts
-├── tests/             # Test suites
-└── docs/              # Documentation
-```
+- **Backend:** Python 3, Flask, SQLAlchemy, Flask-Migrate, Flask-Login
+- **Frontend:** HTML5, CSS3, Vanilla JS, Bootstrap 5, Chart.js
+- **Database:** PostgreSQL 16
+- **DevOps:** Docker, Docker Compose
 
 ## Quick Start
 
-1. Run `scripts/setup.sh` to install dependencies
-2. Configure backend `.env` file
-3. Run database migrations
-4. Start backend: `cd backend && npm run dev`
-5. Start frontend: `cd frontend && npm run dev`
+```bash
+cp .env.example .env
+docker-compose up --build
+```
 
-## Technology Stack
+## Project Structure
 
-- **Frontend:** React, Vite
-- **Backend:** Node.js, Express
-- **Database:** PostgreSQL
-- **Reverse Proxy:** Nginx (production)
-- **Process Manager:** systemd (production)
+- `app/models/` — SQLAlchemy models
+- `app/routes/` — Flask blueprints (controllers)
+- `app/services/` — Business logic layer
+- `app/repositories/` — Data access layer
+- `app/forms/` — WTForms form classes
+- `app/templates/` — Jinja2 HTML templates
+- `app/static/` — CSS, JS, images
+- `migrations/` — Alembic migration files
+- `tests/` — Test suite

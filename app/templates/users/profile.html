@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}My Profile - Construction ERP{% endblock %}
+{% block page_title %}<i class="bi bi-person-circle"></i> My Profile{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+    <div class="col-md-5">
+        <div class="card panel text-center">
+            <span class="avatar-lg">{{ current_user.username[0]|upper }}</span>
+            <h2 style="font-size:1.15rem;font-weight:650;margin-bottom:.125rem">{{ current_user.username }}</h2>
+            <p class="text-muted small mb-3">{{ current_user.email }}</p>
+            <span class="badge-soft badge-soft-{{ current_user.role }}">{{ current_user.role }}</span>
+            <hr class="divider">
+            <div class="kv">
+                <span class="k">Member Since</span>
+                <span class="v">{{ current_user.created_at.strftime('%Y-%m-%d') if current_user.created_at else '-' }}</span>
+            </div>
+        </div>
+        <a href="{{ url_for('users.change_password') }}" class="btn btn-primary w-100 mt-3">
+            <i class="bi bi-key"></i> Change Password
+        </a>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-shield-lock me-1"></i> Security</div>
+            <div class="card-body">
+                <div class="kv"><span class="k">Password</span><span class="v">••••••••</span></div>
+                <div class="kv"><span class="k">Role</span><span class="v" style="text-transform:capitalize">{{ current_user.role }}</span></div>
+                <div class="kv">
+                    <span class="k">Admin Access</span>
+                    <span class="v">
+                        {% if current_user.role == 'admin' %}
+                        <span class="text-profit">Enabled</span>
+                        {% else %}
+                        <span class="text-muted">Not available</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header"><i class="bi bi-clock-history me-1"></i> Recent Activity</div>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr><th>Action</th><th>Details</th><th>When</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for log in current_user.audit_logs|sort(attribute='created_at', reverse=True) %}
+                        {% if loop.index <= 8 %}
+                        <tr>
+                            <td><span class="badge-soft badge-soft-neutral">{{ log.action }}</span></td>
+                            <td>{{ log.details or '-' }}</td>
+                            <td class="text-nowrap text-muted small">{{ log.created_at.strftime('%Y-%m-%d %H:%M') if log.created_at else '-' }}</td>
+                        </tr>
+                        {% endif %}
+                        {% else %}
+                        <tr>
+                            <td colspan="3">
+                                <div class="empty-state py-4"><i class="bi bi-clock-history"></i><p>No activity recorded yet.</p></div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

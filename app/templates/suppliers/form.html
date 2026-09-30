@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field %}
+{% block title %}New Supplier - Construction ERP{% endblock %}
+{% block page_title %}<i class="bi bi-truck"></i> New Supplier{% endblock %}
+
+{% block content %}
+<div class="card form-narrow">
+    <div class="card-header"><i class="bi bi-person-badge me-1"></i>Supplier Details</div>
+    <div class="card-body">
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+            {{ field(form.name, placeholder='Company or supplier name') }}
+            {{ field(form.contact_person, placeholder='Contact person') }}
+            {{ field(form.phone, placeholder='Phone number') }}
+            {{ field(form.email, placeholder='email@example.com') }}
+            {{ field(form.address, placeholder='Address', rows=3) }}
+            <div class="d-flex gap-2 mt-4">
+                {{ form.submit(class="btn btn-primary") }}
+                <a href="{{ url_for('suppliers.list_suppliers') }}" class="btn btn-soft">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

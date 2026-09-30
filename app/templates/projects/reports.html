@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Reports - Construction ERP{% endblock %}
+{% block page_title %}<i class="bi bi-graph-up-arrow"></i> Project Reports{% endblock %}
+
+{% block content %}
+{% set total_boq = report_data|sum(attribute='boq_total') %}
+{% set total_actual = report_data|sum(attribute='actual_total') %}
+{% set total_profit = total_boq - total_actual %}
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="stat">
+            <span class="ico bg-violet-soft"><i class="bi bi-list-ol"></i></span>
+            <span><span class="k d-block">BOQ Total</span><span class="v d-block" style="font-size:1.15rem">${{ "{:,.0f}".format(total_boq) }}</span></span>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat">
+            <span class="ico bg-bad-soft"><i class="bi bi-cash-stack"></i></span>
+            <span><span class="k d-block">Actual Costs</span><span class="v d-block" style="font-size:1.15rem">${{ "{:,.0f}".format(total_actual) }}</span></span>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat">
+            <span class="ico {% if total_profit >= 0 %}bg-ok-soft{% else %}bg-warn-soft{% endif %}"><i class="bi bi-graph-up"></i></span>
+            <span><span class="k d-block">Profit / Loss</span><span class="v d-block" style="font-size:1.15rem">${{ "{:,.0f}".format(total_profit) }}</span></span>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat">
+            <span class="ico bg-brand-soft"><i class="bi bi-briefcase"></i></span>
+            <span><span class="k d-block">Projects</span><span class="v d-block">{{ report_data|length }}</span></span>
+        </div>
+    </div>
+</div>
+
+<div class="section-head">
+    <span class="text-muted small"><i class="bi bi-table me-1"></i> Profitability by project</span>
+    <a href="{{ url_for('projects.export_reports') }}" class="btn btn-success">
+        <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+    </a>
+</div>
+
+<div class="card">
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Project</th>
+                    <th>Status</th>
+                    <th class="text-end">BOQ Total</th>
+                    <th class="text-end">Actual Costs</th>
+                    <th class="text-end">Profit / Loss</th>
+                    <th class="text-end">Margin %</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in report_data %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('projects.project_detail', project_id=row.project.id) }}">{{ row.project.name }}</a>
+                        {% if row.project.client_name %}
+                        <div class="text-muted small">{{ row.project.client_name }}</div>
+                        {% endif %}
+                    </td>
+                    <td><span class="badge-soft badge-soft-{{ row.project.status }}">{{ row.project.status }}</span></td>
+                    <td class="text-end">${{ "{:,.2f}".format(row.boq_total) }}</td>
+                    <td class="text-end">${{ "{:,.2f}".format(row.actual_total) }}</td>
+                    <td class="text-end {{ 'text-profit' if row.profit >= 0 else 'text-loss' }}">
+                        {{ "-" if row.profit < 0 else "" }}${{ "{:,.2f}".format(row.profit|abs) }}
+                    </td>
+                    <td class="text-end {{ 'text-profit' if row.margin >= 0 else 'text-loss' }}">
+                        {{ "{:.1f}".format(row.margin) }}%
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i class="bi bi-graph-up"></i>
+                            <p>No projects to report on yet.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% if report_data %}
+            <tfoot>
+                <tr class="row-total">
+                    <td colspan="2" class="text-end">TOTAL</td>
+                    <td class="text-end">${{ "{:,.2f}".format(total_boq) }}</td>
+                    <td class="text-end">${{ "{:,.2f}".format(total_actual) }}</td>
+                    <td class="text-end {{ 'text-profit' if total_profit >= 0 else 'text-loss' }}">
+                        {{ "-" if total_profit < 0 else "" }}${{ "{:,.2f}".format(total_profit|abs) }}
+                    </td>
+                    <td class="text-end {{ 'text-profit' if total_profit >= 0 else 'text-loss' }}">
+                        {{ "{:.1f}".format((total_profit / total_boq * 100) if total_boq > 0 else 0) }}%
+                    </td>
+                </tr>
+            </tfoot>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}

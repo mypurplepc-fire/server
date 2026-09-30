@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Users - Construction ERP{% endblock %}
+{% block page_title %}<i class="bi bi-people"></i> Users{% endblock %}
+
+{% block content %}
+<div class="section-head">
+    <span class="text-muted small"><i class="bi bi-person-badge me-1"></i> {{ users|length }} user{{ '' if users|length == 1 else 's' }}</span>
+    <a href="{{ url_for('users.create_user') }}" class="btn btn-primary">
+        <i class="bi bi-person-plus"></i> New User
+    </a>
+</div>
+
+<div class="card">
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Member Since</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="avatar" style="width:30px;height:30px;font-size:.72rem">{{ user.username[0]|upper }}</span>
+                            <span>
+                                <strong>{{ user.username }}</strong>
+                                {% if user.id == current_user.id %}
+                                <span class="badge-soft badge-soft-neutral ms-1">you</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </td>
+                    <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
+                    <td><span class="badge-soft badge-soft-{{ user.role }}">{{ user.role }}</span></td>
+                    <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else '-' }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4">
+                        <div class="empty-state"><i class="bi bi-people"></i><p>No users found.</p></div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

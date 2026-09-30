@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Construction ERP{% endblock %}
+{% block page_title %}<i class="bi bi-speedometer2"></i> Dashboard{% endblock %}
+
+{% block content %}
+{% set projects = projects|sort(attribute='id') %}
+{% set chart_labels = projects|map(attribute='name')|list %}
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="stat">
+            <span class="ico bg-brand-soft"><i class="bi bi-wallet2"></i></span>
+            <span>
+                <span class="k d-block">Total Budget</span>
+                <span class="v d-block">${{ "{:,.0f}".format(total_budget|float) }}</span>
+            </span>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat">
+            <span class="ico bg-violet-soft"><i class="bi bi-list-ol"></i></span>
+            <span>
+                <span class="k d-block">Total BOQ</span>
+                <span class="v d-block">${{ "{:,.0f}".format(total_boq|float) }}</span>
+            </span>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat">
+            <span class="ico bg-bad-soft"><i class="bi bi-cash-stack"></i></span>
+            <span>
+                <span class="k d-block">Actual Costs</span>
+                <span class="v d-block">${{ "{:,.0f}".format(total_actual|float) }}</span>
+            </span>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat">
+            <span class="ico bg-ok-soft"><i class="bi bi-briefcase"></i></span>
+            <span>
+                <span class="k d-block">Projects</span>
+                <span class="v d-block">{{ projects|length }}</span>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Budget vs Actual by Project</span>
+                <a href="{{ url_for('projects.reports') }}" class="btn btn-sm btn-soft">View reports</a>
+            </div>
+            <div class="card-body">
+                {% if projects %}
+                <div class="chart-box"><canvas id="projectChart"></canvas></div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-bar-chart"></i>
+                    <p>No projects yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card h-100">
+            <div class="card-header">Overall Breakdown</div>
+            <div class="card-body">
+                {% if projects %}
+                <div class="chart-box" style="height:260px"><canvas id="summaryChart"></canvas></div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-pie-chart"></i>
+                    <p>Nothing to summarise yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Projects</span>
+        <a href="{{ url_for('projects.create_project') }}" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus"></i> New Project
+        </a>
+    </div>
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Project</th>
+                    <th>Client</th>
+                    <th class="text-end">Budget</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('projects.project_detail', project_id=project.id) }}">{{ project.name }}</a>
+                        {% if project.location %}<div class="text-muted small"><i class="bi bi-geo-alt"></i> {{ project.location }}</div>{% endif %}
+                    </td>
+                    <td>{{ project.client_name or '-' }}</td>
+                    <td class="text-end">${{ "{:,.2f}".format(project.budget or 0) }}</td>
+                    <td><span class="badge-soft badge-soft-{{ project.status }}">{{ project.status }}</span></td>
+                    <td class="text-end">
+                        <a href="{{ url_for('projects.project_detail', project_id=project.id) }}" class="btn btn-sm btn-soft btn-icon" title="Open">
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <i class="bi bi-briefcase"></i>
+                            <p>No projects yet. Create your first project to get started.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const labels = {{ chart_labels|tojson }};
+    const budgets = {{ projects|map(attribute='budget')|map('float', 0)|list|tojson }};
+
+    const projectCtx = document.getElementById('projectChart');
+    if (projectCtx) {
+        new Chart(projectCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Budget',
+                        data: budgets,
+                        backgroundColor: '#3b6fd4',
+                        borderRadius: 6,
+                        maxBarThickness: 34
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => ' Budget: $' + Number(ctx.raw).toLocaleString()
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (v) => '$' + Number(v).toLocaleString()
+                        },
+                        grid: { color: '#eef1f6' }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    const summaryCtx = document.getElementById('summaryChart');
+    if (summaryCtx) {
+        new Chart(summaryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['BOQ Total', 'Actual Costs', 'Budget'],
+                datasets: [{
+                    data: [
+                        {{ total_boq|float }},
+                        {{ total_actual|float }},
+                        {{ total_budget|float }}
+                    ],
+                    backgroundColor: ['#6941c6', '#d92d20', '#3b6fd4'],
+                    borderWidth: 0,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '62%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 16 } },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => ' ' + ctx.label + ': $' + Number(ctx.raw).toLocaleString()
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

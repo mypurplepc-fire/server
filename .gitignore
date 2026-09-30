@@ -1,11 +1,57 @@
-node_modules/
-dist/
+# ============================================================
+# Python
+# ============================================================
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ============================================================
+# Secrets (never bake these into a Docker image)
+# ============================================================
 .env
-.env.local
-*.log
-.DS_Store
-coverage/
+.env.*
+!.env.example
+
+# Flask instance folder
+instance/
+
+# ============================================================
+# Uploads - runtime data, mounted as a Docker volume.
+# Kept out of git; a placeholder keeps the folder in the repo.
+# ============================================================
 uploads/*
 !uploads/.gitkeep
+
+# ============================================================
+# Node / Next.js leftovers from the previous stack
+# ============================================================
+node_modules/
+.next/
+.vite/
+dist/
+coverage/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+
+# ============================================================
+# Local databases and generated reports
+# ============================================================
+pgdata/
 reports/*
 !reports/.gitkeep
+
+# ============================================================
+# Editors and OS
+# ============================================================
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
